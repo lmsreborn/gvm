@@ -16,6 +16,17 @@ type Entry interface {
 
 func newEntry(path string) Entry {
 	if strings.Contains(path, pathListSeparator) {
-
+		return newCompositeEntry(path)
 	}
+
+	if strings.HasSuffix(path, "*") {
+		return newWildcardEntry(path)
+	}
+
+	if strings.HasSuffix(path, ".zip") || strings.HasSuffix(path, ".ZIP") ||
+		strings.HasSuffix(path, ".jar") || strings.HasSuffix(path, ".JAR") {
+		return newPkgEntry(path)
+	}
+
+	return newDirEntry(path)
 }
