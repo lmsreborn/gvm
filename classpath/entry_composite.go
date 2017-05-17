@@ -1,7 +1,11 @@
 package classpath
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
+// CompositeEntry slice of entries
 type CompositeEntry []Entry
 
 func newCompositeEntry(path string) CompositeEntry {
@@ -13,4 +17,25 @@ func newCompositeEntry(path string) CompositeEntry {
 	}
 
 	return compositeEntry
+}
+
+func (compositeEntry CompositeEntry) readClass(className string) ([]byte, Entry, error) {
+	for _, entry := range compositeEntry {
+		data, from, err := entry.readClass(className)
+		if err == nil {
+			return data, from, nil
+		}
+	}
+
+	return nil, nil, errors.New("class not found: " + className)
+}
+
+func (compositeEntry CompositeEntry) String() string {
+	strs := make([]string, len(compositeEntry))
+
+	for i, entry := range compositeEntry {
+		strs[i] = entry.String()
+	}
+
+	return strings.Join(strs, pathListSeparator)
 }
